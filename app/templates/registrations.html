@@ -1,0 +1,42 @@
+{% extends "authenticated-base.html" %}
+{% block title %}My Registrations · Alumni Connect{% endblock %}
+
+{% block subpage_content %}
+<section class="workflow-heading">
+  <div>
+    <p class="landing-kicker mb-2">Your community calendar</p>
+    <h1 class="h2 mb-0">My Registrations</h1>
+  </div>
+  <a class="btn btn-primary" href="{{ url_for('events_list_view') }}">Browse Events</a>
+</section>
+
+{% if registered %}
+<div class="alert alert-success" role="status">Registration Successful</div>
+{% endif %}
+
+{% if registrations %}
+<div class="event-list">
+  {% for item in registrations %}
+  <article class="event-card registration-card">
+    <div>
+      <h2>{{ item.event.title }}</h2>
+      <p class="event-location">{{ item.event.location }}</p>
+    </div>
+    <div class="event-datetime">
+      <strong>{{ item.event.event_date.strftime("%d/%m/%Y") }}</strong>
+      <span>{{ item.event.event_time.strftime("%I:%M %p") }}</span>
+    </div>
+    <div class="registration-state" aria-label="Registration and event status">
+      <span class="registration-status">Registration: {{ item.registration.status }}</span>
+      <span class="event-status-badge status-{{ item.event.status|lower }}">Event: {{ item.event.status }}</span>
+    </div>
+  </article>
+  {% endfor %}
+</div>
+{% else %}
+<div class="empty-state">
+  <h2 class="h5">No registrations yet</h2>
+  <p class="mb-0">Explore alumni events to find your next opportunity to connect.</p>
+</div>
+{% endif %}
+{% endblock %}

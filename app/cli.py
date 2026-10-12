@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import argparse
 import sys
+from datetime import date, time, timedelta
 from pathlib import Path
 
 
@@ -47,7 +48,7 @@ def cmd_init(args: argparse.Namespace) -> None:
 
 
 def cmd_seed(args: argparse.Namespace) -> None:
-    """Insert demo users.
+    """Insert demo users and a sample event.
 
     bob / bobpass       (regular_user)
     admin / adminpass   (admin)
@@ -56,6 +57,8 @@ def cmd_seed(args: argparse.Namespace) -> None:
     from app.repositories.user import UserRepository
     from app.schemas.user import AdminCreate, RegularUserCreate
     from app.utilities.security import encrypt_password
+    from app.models.event import Administrator, Event
+    from sqlmodel import select
 
     _ensure_models_loaded()
     ensure_db_and_tables()
@@ -85,6 +88,45 @@ def cmd_seed(args: argparse.Namespace) -> None:
             )
             print(f"  create {username} ({role})")
             created += 1
+
+        admin_user = repo.get_by_username("admin")
+        if admin_user:
+            administrator = session.exec(
+                select(Administrator).where(Administrator.email == admin_user.email)
+            ).one_or_none()
+            if administrator is None:
+                administrator = Administrator(
+                    first_name="Alumni",
+                    last_name="Administrator",
+                    email=admin_user.email,
+                )
+                session.add(administrator)
+                session.commit()
+                session.refresh(administrator)
+            if administrator.admin_id is None:
+                raise RuntimeError("Seeded administrator record has no primary key.")
+
+            sample_event = session.exec(
+                select(Event).where(Event.title == "Alumni Networking Mixer")
+            ).first()
+            if sample_event is None:
+                session.add(
+                    Event(
+                        admin_id=administrator.admin_id,
+                        title="Alumni Networking Mixer",
+                        description=(
+                            "Reconnect with fellow graduates and meet alumni "
+                            "from across the community."
+                        ),
+                        event_date=date.today() + timedelta(days=30),
+                        event_time=time(hour=17, minute=30),
+                        location="Alumni Hall",
+                        capacity=30,
+                        status="Open",
+                    )
+                )
+                session.commit()
+                print("  create sample event (Alumni Networking Mixer)")
 
     print(f"Seed done — created {created}, skipped {skipped}.")
     print("Login with bob/bobpass or admin/adminpass")

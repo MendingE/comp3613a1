@@ -1,9 +1,156 @@
 {% extends "authenticated-base.html" %}
-{% block title %}Admin{% endblock %}
+{% block title %}Manage Events · Alumni Connect{% endblock %}
 
 {% block subpage_content %}
-<div class="container-fluid py-2">
-  <h1 class="h4 mb-2">Admin</h1>
-  <p class="text-muted mb-0">Admin workflow screens replace this shell in Phase 5 implement.</p>
-</div>
+<section class="workflow-heading">
+  <div>
+    <p class="landing-kicker mb-2">Administrator</p>
+    <h1 class="h2 mb-0">Manage Alumni Events</h1>
+  </div>
+  <div class="admin-event-actions">
+    <form class="event-search" method="get" action="{{ url_for('admin_events_view') }}">
+      <label class="visually-hidden" for="admin-event-search">Search managed events</label>
+      <input class="form-control" id="admin-event-search" name="query" value="{{ query }}" placeholder="Search events">
+      <button class="btn btn-outline-secondary" type="submit">Search</button>
+    </form>
+    <a class="btn btn-primary" href="{{ url_for('admin_events_view') }}?create=1">Create Event</a>
+  </div>
+</section>
+
+{% if admin_error %}
+<div class="alert alert-danger" role="alert">{{ admin_error }}</div>
+{% endif %}
+
+{% if show_create_form %}
+<section class="admin-form-panel" aria-labelledby="create-event-heading">
+  <div class="admin-form-heading">
+    <div>
+      <p class="landing-kicker mb-1">New event</p>
+      <h2 id="create-event-heading" class="h4 mb-0">Create Event</h2>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_events_view') }}">Cancel</a>
+  </div>
+  <form method="post" action="{{ url_for('admin_event_create_action') }}" class="admin-event-form">
+    <div>
+      <label class="form-label" for="create-title">Title</label>
+      <input class="form-control" id="create-title" name="title" required maxlength="200">
+    </div>
+    <div class="admin-event-form-pair">
+      <div>
+        <label class="form-label" for="create-date">Date</label>
+        <input class="form-control" id="create-date" name="event_date" type="date" required>
+      </div>
+      <div>
+        <label class="form-label" for="create-time">Time</label>
+        <input class="form-control" id="create-time" name="event_time" type="time" required>
+      </div>
+    </div>
+    <div class="admin-event-form-pair">
+      <div>
+        <label class="form-label" for="create-location">Location</label>
+        <input class="form-control" id="create-location" name="location" required maxlength="200">
+      </div>
+      <div>
+        <label class="form-label" for="create-capacity">Capacity</label>
+        <input class="form-control" id="create-capacity" name="capacity" type="number" min="1" step="1" required>
+      </div>
+    </div>
+    <div>
+      <label class="form-label" for="create-description">Description</label>
+      <textarea class="form-control" id="create-description" name="description" rows="4"></textarea>
+    </div>
+    <div class="admin-form-submit">
+      <button class="btn btn-primary" type="submit">Create Event</button>
+    </div>
+  </form>
+</section>
+{% elif editing_event %}
+<section class="admin-form-panel" aria-labelledby="edit-event-heading">
+  <div class="admin-form-heading">
+    <div>
+      <p class="landing-kicker mb-1">Update event</p>
+      <h2 id="edit-event-heading" class="h4 mb-0">Edit {{ editing_event.title }}</h2>
+    </div>
+    <a class="btn btn-outline-secondary" href="{{ url_for('admin_events_view') }}">Cancel</a>
+  </div>
+  <form method="post" action="{{ url_for('admin_event_update_action', event_id=editing_event.event_id) }}" class="admin-event-form">
+    <div>
+      <label class="form-label" for="edit-title">Title</label>
+      <input class="form-control" id="edit-title" name="title" value="{{ editing_event.title }}" required maxlength="200">
+    </div>
+    <div class="admin-event-form-pair">
+      <div>
+        <label class="form-label" for="edit-date">Date</label>
+        <input class="form-control" id="edit-date" name="event_date" type="date" value="{{ editing_event.event_date.isoformat() }}" required>
+      </div>
+      <div>
+        <label class="form-label" for="edit-time">Time</label>
+        <input class="form-control" id="edit-time" name="event_time" type="time" value="{{ editing_event.event_time.strftime('%H:%M') }}" required>
+      </div>
+    </div>
+    <div class="admin-event-form-pair">
+      <div>
+        <label class="form-label" for="edit-location">Location</label>
+        <input class="form-control" id="edit-location" name="location" value="{{ editing_event.location }}" required maxlength="200">
+      </div>
+      <div>
+        <label class="form-label" for="edit-capacity">Capacity</label>
+        <input class="form-control" id="edit-capacity" name="capacity" type="number" min="1" step="1" value="{{ editing_event.capacity }}" required>
+      </div>
+    </div>
+    <div>
+      <label class="form-label" for="edit-description">Description</label>
+      <textarea class="form-control" id="edit-description" name="description" rows="4">{{ editing_event.description }}</textarea>
+    </div>
+    <div class="admin-form-submit">
+      <button class="btn btn-primary" type="submit">Save Changes</button>
+    </div>
+  </form>
+</section>
+{% endif %}
+
+<section aria-labelledby="managed-events-heading">
+  <div class="admin-list-heading">
+    <h2 id="managed-events-heading" class="h4 mb-0">Events You Manage</h2>
+    <span class="text-muted">{{ events|length }} event{% if events|length != 1 %}s{% endif %}</span>
+  </div>
+  {% if events %}
+  <div class="event-list admin-event-list">
+    {% for event in events %}
+    <article class="admin-event-card">
+      <div class="admin-event-summary">
+        <div class="admin-event-title-row">
+          <h3>{{ event.title }}</h3>
+          <span class="event-status-badge status-{{ event.status|lower }}">{{ event.status }}</span>
+        </div>
+        <p class="event-location">{{ event.location }}</p>
+        <p class="admin-event-description">{{ event.description or "No description provided." }}</p>
+      </div>
+      <div class="event-datetime">
+        <strong>{{ event.event_date.strftime("%d/%m/%Y") }}</strong>
+        <span>{{ event.event_time.strftime("%I:%M %p") }}</span>
+        <span>Capacity: {{ event.capacity }}</span>
+      </div>
+      <div class="admin-event-controls">
+        <form method="post" action="{{ url_for('admin_event_status_action', event_id=event.event_id) }}">
+          <label class="visually-hidden" for="status-{{ event.event_id }}">Status for {{ event.title }}</label>
+          <select class="form-select" id="status-{{ event.event_id }}" name="new_status">
+            {% for status in ["Open", "Closed", "Cancelled"] %}
+            <option value="{{ status }}"{% if event.status == status %} selected{% endif %}>{{ status }}</option>
+            {% endfor %}
+          </select>
+          <button class="btn btn-outline-primary" type="submit">Save Status</button>
+        </form>
+        <a class="btn btn-outline-secondary" href="{{ url_for('admin_events_view') }}?edit_id={{ event.event_id }}">Edit</a>
+      </div>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h2 class="h5">No events found</h2>
+    <p class="mb-0">{% if query %}Try a different search.{% else %}Create an event to start managing your alumni calendar.{% endif %}</p>
+  </div>
+  {% endif %}
+</section>
 {% endblock %}

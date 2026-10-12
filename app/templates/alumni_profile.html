@@ -1,0 +1,66 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Manage Profile · Alumni Connect{% endblock %}
+
+{% block subpage_content %}
+<section class="profile-panel">
+  <h1 class="h2 text-center mb-4">Manage Profile</h1>
+
+  {% if request.query_params.get('saved') == '1' %}
+  <div class="alert alert-success" role="status">Your profile was saved.</div>
+  {% elif request.query_params.get('error') == 'profile_required' %}
+  <div class="alert alert-warning" role="status">Complete your alumni profile before registering for events.</div>
+  {% endif %}
+
+  <div class="profile-avatar" aria-label="Profile photo preview">
+    {% if profile and profile.profile_photo %}
+    <img src="{{ profile.profile_photo }}" alt="Profile photo" referrerpolicy="no-referrer">
+    {% else %}
+    {{ (profile.first_name[0] if profile and profile.first_name else user.username[0]) | upper }}
+    {% endif %}
+  </div>
+
+  <form method="post" action="{{ url_for('alumni_profile_save') }}">
+    <div class="profile-fields">
+      <div>
+        <label class="form-label" for="first_name">First Name</label>
+        <input class="form-control" id="first_name" name="first_name" value="{{ profile.first_name if profile else '' }}" required>
+      </div>
+      <div>
+        <label class="form-label" for="last_name">Last Name</label>
+        <input class="form-control" id="last_name" name="last_name" value="{{ profile.last_name if profile else '' }}" required>
+      </div>
+      <div class="profile-wide">
+        <label class="form-label" for="email">Email</label>
+        <input class="form-control" type="email" id="email" name="email" value="{{ profile.email if profile else user.email }}" required>
+      </div>
+      <div>
+        <label class="form-label" for="graduation_year">Graduation Year</label>
+        <input class="form-control" type="number" id="graduation_year" name="graduation_year" value="{{ profile.graduation_year if profile and profile.graduation_year else '' }}" required>
+      </div>
+      <div>
+        <label class="form-label" for="degree">Degree</label>
+        <input class="form-control" id="degree" name="degree" value="{{ profile.degree if profile else '' }}" required>
+      </div>
+      <div>
+        <label class="form-label" for="current_occupation">Occupation</label>
+        <input class="form-control" id="current_occupation" name="current_occupation" value="{{ profile.current_occupation if profile else '' }}">
+      </div>
+      <div>
+        <label class="form-label" for="company">Company</label>
+        <input class="form-control" id="company" name="company" value="{{ profile.company if profile else '' }}">
+      </div>
+      <div class="profile-wide">
+        <label class="form-label" for="bio">Bio</label>
+        <textarea class="form-control" id="bio" name="bio" rows="4">{{ profile.bio if profile else '' }}</textarea>
+      </div>
+      <div class="profile-wide">
+        <label class="form-label" for="profile_photo">Profile Photo URL</label>
+        <input class="form-control" type="url" id="profile_photo" name="profile_photo" value="{{ profile.profile_photo if profile and profile.profile_photo else '' }}" placeholder="https://example.com/photo.jpg">
+      </div>
+    </div>
+    <div class="text-end mt-4">
+      <button class="btn btn-primary px-4" type="submit">Save Info</button>
+    </div>
+  </form>
+</section>
+{% endblock %}

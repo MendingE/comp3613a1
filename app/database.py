@@ -3,6 +3,7 @@ import threading
 import time
 from contextlib import contextmanager
 
+from sqlalchemy import MetaData, inspect
 from sqlalchemy.exc import DBAPIError, OperationalError, ProgrammingError
 from sqlmodel import SQLModel, Session, create_engine
 
@@ -38,6 +39,109 @@ def create_db_and_tables() -> None:
     import app.models  # noqa: F401
 
     SQLModel.metadata.create_all(engine)
+    _repair_empty_legacy_eventregistration_table()
+
+
+def _repair_empty_legacy_eventregistration_table() -> None:
+    """Rebuild only the known empty SQLite table left by the earlier model."""
+    if engine.dialect.name != "sqlite":
+        return
+
+    from app.models.event import EventRegistration
+
+    table_name = EventRegistration.__tablename__
+    staging_name = "_eventregistration_repair"
+    expected_columns = list(EventRegistration.__table__.columns.keys())
+
+    with engine.connect() as connection:
+        connection.exec_driver_sql("BEGIN IMMEDIATE")
+        try:
+            inspector = inspect(connection)
+            if not inspector.has_table(table_name):
+                connection.commit()
+                return
+
+            columns = inspector.get_columns(table_name)
+            column_names = [column["name"] for column in columns]
+            if column_names == expected_columns:
+                indexes = inspector.get_indexes(table_name)
+                stale_staging_indexes = [
+                    index["name"]
+                    for index in indexes
+                    if index["name"].startswith("ix__eventregistration_repair_")
+                ]
+                for index_name in stale_staging_indexes:
+                    connection.exec_driver_sql(
+                        f'DROP INDEX "{index_name}"'
+                    )
+
+                existing_index_names = {
+                    index["name"] for index in inspector.get_indexes(table_name)
+                }
+                for index in EventRegistration.__table__.indexes:
+                    if index.name not in existing_index_names:
+                        index.create(connection, checkfirst=False)
+                connection.commit()
+                return
+
+            is_known_legacy_shape = (
+                column_names == ["registration_id"]
+                and str(columns[0]["type"]).upper() == "INTEGER"
+                and not columns[0]["nullable"]
+                and columns[0]["primary_key"] == 1
+                and not inspector.get_indexes(table_name)
+                and not inspector.get_foreign_keys(table_name)
+                and not inspector.get_unique_constraints(table_name)
+            )
+            if not is_known_legacy_shape:
+                raise RuntimeError(
+                    "Cannot safely repair eventregistration: its schema is not "
+                    "the known legacy shape."
+                )
+
+            row_count = connection.exec_driver_sql(
+                f'SELECT COUNT(*) FROM "{table_name}"'
+            ).scalar_one()
+            if row_count != 0:
+                raise RuntimeError(
+                    "Cannot safely repair eventregistration: the legacy table "
+                    "contains data."
+                )
+            if inspector.has_table(staging_name):
+                raise RuntimeError(
+                    "Cannot safely repair eventregistration: the repair staging "
+                    "table already exists."
+                )
+
+            repair_metadata = MetaData()
+            for related_table_name in ("alumnus", "event"):
+                SQLModel.metadata.tables[related_table_name].to_metadata(
+                    repair_metadata
+                )
+            repair_table = EventRegistration.__table__.to_metadata(
+                repair_metadata, name=staging_name
+            )
+            repair_table.indexes.clear()
+            repair_table.create(connection)
+            connection.exec_driver_sql(f'DROP TABLE "{table_name}"')
+            connection.exec_driver_sql(
+                f'ALTER TABLE "{staging_name}" RENAME TO "{table_name}"'
+            )
+            for index in EventRegistration.__table__.indexes:
+                index.create(connection, checkfirst=False)
+
+            violations = connection.exec_driver_sql(
+                f'PRAGMA foreign_key_check("{table_name}")'
+            ).all()
+            if violations:
+                raise RuntimeError(
+                    "Foreign-key validation failed after repairing "
+                    "eventregistration."
+                )
+            connection.commit()
+        except Exception:
+            connection.rollback()
+            raise
 
 
 def drop_all() -> None:

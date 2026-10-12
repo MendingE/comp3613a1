@@ -1,0 +1,30 @@
+{
+  "system": "Alumni App",
+  "actors": [
+    {"name": "Alumnus", "side": "left"},
+    {"name": "Administrator", "side": "right"}
+  ],
+  "use_cases": [
+    {
+      "name": "Manage Alumni Profile",
+      "actors": ["Alumnus"]
+    },
+    {
+      "name": "Explore Alumni Events",
+      "actors": ["Alumnus"],
+      "includes": ["View Event Details"]
+    },
+    {
+      "name": "View Event Details"
+    },
+    {
+      "name": "Register for Event",
+      "actors": ["Alumnus"],
+      "extends": ["Explore Alumni Events"]
+    },
+    {
+      "name": "Manage Alumni Events",
+      "actors": ["Administrator"]
+    }
+  ]
+}

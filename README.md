@@ -84,7 +84,7 @@ Defaults use a local SQLite file (`database.db`). Change `SECRET_KEY` before any
 
 ### 4. Initialise the database (Python CLI)
 
-Creates tables (drops existing by default) **and seeds demo users**:
+Creates tables (drops existing by default) **and seeds demo users plus a sample alumni event**:
 
 ```bash
 python manage.py init
@@ -102,7 +102,7 @@ python manage.py init --no-drop   # create/seed without dropping
 python manage.py init --no-seed   # tables only (skip demo users)
 ```
 
-Seeding skips usernames that already exist. Add more rows in `cmd_seed` in `app/cli.py`. `python manage.py seed` still works if you only want to (re)insert demo users.
+Seeding skips usernames that already exist and adds the sample event only if it is missing. Add more rows in `cmd_seed` in `app/cli.py`. Run `python manage.py seed` to insert demo users and the sample event without dropping existing data.
 
 ```bash
 python manage.py users
@@ -129,8 +129,8 @@ Commands are implemented in `app/cli.py` (stdlib `argparse`) and invoked via `ma
 
 | Command | Purpose |
 |---------|---------|
-| `python manage.py init` | Drop (default), create DB tables, and seed demo users |
-| `python manage.py seed` | Insert demo users only (also part of `init`) |
+| `python manage.py init` | Drop (default), create DB tables, and seed demo users plus a sample alumni event |
+| `python manage.py seed` | Insert demo users and the sample alumni event without dropping tables |
 | `python manage.py run` | Start Uvicorn (reload unless `ENV=production`) |
 | `python manage.py users` | Print users in the DB |
 | `python manage.py transcripts` | Optional: package agent-written `docs/transcripts/*.md` into INDEX + zip (no IDE scrape) |

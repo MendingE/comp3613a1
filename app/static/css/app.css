@@ -1,17 +1,17 @@
 :root {
-  /* Phase 5 theming: Guide overwrites these from docs/report.md preferences */
-  --brand-name: "FastStarter";
-  --brand-bg: #0c1218;
-  --brand-surface: #f7f4ef;
-  --brand-ink: #14202b;
-  --brand-muted: #6a7a88;
-  --brand-accent: #c45c26;
-  --brand-accent-2: #2a6f6b;
-  --brand-sidebar: #14202b;
-  --brand-sidebar-text: #a8b4bf;
-  --brand-font-display: "Fraunces", Georgia, serif;
-  --brand-font-body: "Source Sans 3", "Segoe UI", sans-serif;
-  --brand-radius: 0.85rem;
+  --brand-name: "Alumni Connect";
+  --brand-navy: #142b4a;
+  --brand-bg: #ffffff;
+  --brand-surface: #ffffff;
+  --brand-ink: #142b4a;
+  --brand-muted: #5f6f82;
+  --brand-accent: #d4af37;
+  --brand-accent-2: #d4af37;
+  --brand-sidebar: #142b4a;
+  --brand-sidebar-text: #e5ebf2;
+  --brand-font-display: "Segoe UI", Arial, sans-serif;
+  --brand-font-body: "Segoe UI", Arial, sans-serif;
+  --brand-radius: 0.65rem;
 }
 
 *,
@@ -25,6 +25,7 @@ body {
   font-family: var(--brand-font-body);
   color: var(--brand-ink);
   background: var(--brand-bg);
+  line-height: 1.55;
 }
 
 .brand-wordmark {
@@ -38,12 +39,8 @@ body {
   min-height: 100vh;
   display: grid;
   grid-template-rows: auto 1fr auto;
-  color: var(--brand-surface);
-  background:
-    linear-gradient(160deg, rgba(12, 18, 24, 0.55), rgba(12, 18, 24, 0.82)),
-    radial-gradient(ellipse 80% 60% at 15% 20%, rgba(42, 111, 107, 0.45), transparent 55%),
-    radial-gradient(ellipse 70% 50% at 90% 80%, rgba(196, 92, 38, 0.28), transparent 50%),
-    linear-gradient(180deg, #1a2834 0%, #0c1218 100%);
+  color: var(--brand-ink);
+  background: var(--brand-bg);
   position: relative;
   overflow: hidden;
 }
@@ -57,8 +54,8 @@ body {
       -18deg,
       transparent,
       transparent 48px,
-      rgba(247, 244, 239, 0.025) 48px,
-      rgba(247, 244, 239, 0.025) 49px
+      rgba(20, 43, 74, 0.025) 48px,
+      rgba(20, 43, 74, 0.025) 49px
     );
   pointer-events: none;
 }
@@ -79,7 +76,7 @@ body {
 
 .landing-nav .brand-wordmark {
   font-size: clamp(1.4rem, 2.5vw, 1.85rem);
-  color: var(--brand-surface);
+  color: var(--brand-navy);
   text-decoration: none;
 }
 
@@ -101,7 +98,7 @@ body {
   font-size: 0.8rem;
   text-transform: uppercase;
   letter-spacing: 0.14em;
-  color: color-mix(in srgb, var(--brand-surface) 65%, var(--brand-accent-2));
+  color: var(--brand-navy);
   margin: 0 0 1rem;
 }
 
@@ -109,13 +106,13 @@ body {
   font-size: clamp(3rem, 9vw, 5.5rem);
   line-height: 0.95;
   margin: 0 0 1.25rem;
-  color: var(--brand-surface);
+  color: var(--brand-navy);
 }
 
 .landing-lead {
   font-size: clamp(1.05rem, 2.2vw, 1.25rem);
   line-height: 1.55;
-  color: color-mix(in srgb, var(--brand-surface) 78%, transparent);
+  color: var(--brand-muted);
   margin: 0 0 2rem;
   max-width: 28rem;
 }
@@ -144,30 +141,33 @@ body {
 
 .btn-landing-primary {
   background: var(--brand-accent);
-  color: #fff8f3;
+  color: var(--brand-navy);
+  border-color: var(--brand-accent);
+  font-weight: 700;
 }
 
 .btn-landing-primary:hover {
-  background: color-mix(in srgb, var(--brand-accent) 85%, #000);
-  color: #fff;
+  background: #c3a02d;
+  border-color: #c3a02d;
+  color: var(--brand-navy);
 }
 
 .btn-landing-ghost {
   background: transparent;
-  color: var(--brand-surface);
-  border-color: color-mix(in srgb, var(--brand-surface) 45%, transparent);
+  color: var(--brand-navy);
+  border-color: color-mix(in srgb, var(--brand-navy) 35%, transparent);
 }
 
 .btn-landing-ghost:hover {
-  border-color: var(--brand-surface);
-  background: color-mix(in srgb, var(--brand-surface) 8%, transparent);
-  color: var(--brand-surface);
+  border-color: var(--brand-navy);
+  background: color-mix(in srgb, var(--brand-navy) 5%, transparent);
+  color: var(--brand-navy);
 }
 
 .landing-foot {
   padding: 1.25rem clamp(1.25rem, 4vw, 3rem) 1.75rem;
   font-size: 0.85rem;
-  color: color-mix(in srgb, var(--brand-surface) 45%, transparent);
+  color: var(--brand-muted);
 }
 
 .landing-orb {
@@ -178,9 +178,8 @@ body {
   right: -6%;
   top: 18%;
   background:
-    radial-gradient(circle at 35% 35%, rgba(247, 244, 239, 0.18), transparent 55%),
-    radial-gradient(circle at 70% 70%, rgba(42, 111, 107, 0.5), transparent 60%),
-    rgba(196, 92, 38, 0.15);
+    radial-gradient(circle at 35% 35%, rgba(20, 43, 74, 0.10), transparent 55%),
+    radial-gradient(circle at 70% 70%, rgba(212, 175, 55, 0.2), transparent 60%);
   filter: blur(2px);
   animation: landing-drift 14s ease-in-out infinite alternate;
   pointer-events: none;
@@ -219,10 +218,7 @@ body {
   align-items: center;
   justify-content: center;
   padding: 1.5rem;
-  background:
-    radial-gradient(ellipse at top left, color-mix(in srgb, var(--brand-accent-2) 35%, transparent), transparent 55%),
-    radial-gradient(ellipse at bottom right, color-mix(in srgb, var(--brand-accent) 28%, transparent), transparent 50%),
-    var(--brand-bg);
+  background: #f5f7fa;
 }
 
 .auth-panel {
@@ -231,13 +227,14 @@ body {
   color: var(--brand-ink);
   border-radius: var(--brand-radius);
   padding: 2rem 1.75rem;
-  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.28);
+  border: 1px solid #e2e8ef;
+  box-shadow: 0 18px 50px rgba(20, 43, 74, 0.12);
 }
 
 .auth-panel .brand-wordmark {
   font-size: 1.75rem;
   margin-bottom: 0.25rem;
-  color: var(--brand-accent);
+  color: var(--brand-navy);
 }
 
 .auth-panel .auth-tagline {
@@ -248,11 +245,14 @@ body {
 .auth-panel .btn-primary {
   background: var(--brand-accent);
   border-color: var(--brand-accent);
+  color: var(--brand-navy);
+  font-weight: 700;
 }
 
 .auth-panel .btn-primary:hover {
-  background: color-mix(in srgb, var(--brand-accent) 85%, #000);
-  border-color: color-mix(in srgb, var(--brand-accent) 85%, #000);
+  background: #c3a02d;
+  border-color: #c3a02d;
+  color: var(--brand-navy);
 }
 
 .auth-panel .btn-outline-secondary {
@@ -269,5 +269,488 @@ body {
 }
 
 .auth-back:hover {
+  color: var(--brand-navy);
+}
+
+.btn-outline-secondary {
+  --bs-btn-color: var(--brand-navy);
+  --bs-btn-border-color: #bdc8d5;
+  --bs-btn-hover-color: #fff;
+  --bs-btn-hover-bg: var(--brand-navy);
+  --bs-btn-hover-border-color: var(--brand-navy);
+}
+
+.form-control:focus {
+  border-color: var(--brand-accent);
+  box-shadow: 0 0 0 0.2rem rgba(212, 175, 55, 0.22);
+}
+
+.navbar {
+  color: var(--brand-navy);
+}
+
+#content {
+  background: #f5f7fa;
+}
+
+.app-nav {
+  min-height: 4.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1.5rem;
+  padding: 0.75rem clamp(1rem, 4vw, 3rem);
+  background: var(--brand-navy);
+  color: #fff;
+}
+
+.app-nav .brand-wordmark {
+  color: #fff;
+  font-size: 1.35rem;
+  text-decoration: none;
+}
+
+.app-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+}
+
+.app-nav-link {
+  color: #fff;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.app-nav-link:hover,
+.app-nav-link:focus-visible {
   color: var(--brand-accent);
+}
+
+.app-content {
+  min-height: calc(100vh - 4.5rem);
+  padding: clamp(1.5rem, 4vw, 3rem) 0;
+  background: #f5f7fa;
+}
+
+.profile-panel {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 2.5rem);
+  border: 1px solid #e2e8ef;
+  border-radius: var(--brand-radius);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 43, 74, 0.08);
+}
+
+.profile-avatar {
+  width: 7rem;
+  height: 7rem;
+  display: grid;
+  place-items: center;
+  margin: 0 auto 1.5rem;
+  overflow: hidden;
+  border: 3px solid #e7edf4;
+  border-radius: 50%;
+  background: #f5f7fa;
+  color: var(--brand-navy);
+  font-size: 2rem;
+  font-weight: 700;
+}
+
+.profile-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.profile-fields {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.profile-fields .profile-wide {
+  grid-column: 1 / -1;
+}
+
+.profile-panel .form-label {
+  color: var(--brand-navy);
+  font-weight: 600;
+}
+
+.profile-panel .btn-primary,
+.community-welcome .btn-primary {
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.profile-panel .btn-primary:hover,
+.community-welcome .btn-primary:hover {
+  background: #c3a02d;
+  border-color: #c3a02d;
+  color: var(--brand-navy);
+}
+
+.community-welcome {
+  max-width: 46rem;
+  margin: 2rem auto;
+  padding: clamp(1.5rem, 5vw, 3rem);
+  border-radius: var(--brand-radius);
+  background: #fff;
+  box-shadow: 0 12px 32px rgba(20, 43, 74, 0.08);
+}
+
+.community-welcome h1 {
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.workflow-heading {
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: 1.5rem;
+  margin: 0 auto 1.5rem;
+}
+
+.workflow-heading h1 {
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.event-search {
+  display: flex;
+  gap: 0.5rem;
+  width: min(28rem, 100%);
+}
+
+.event-list {
+  display: grid;
+  gap: 1rem;
+  max-width: 58rem;
+  margin: 0 auto;
+}
+
+.event-card,
+.event-detail-card,
+.empty-state {
+  border: 1px solid #e2e8ef;
+  border-radius: var(--brand-radius);
+  background: #fff;
+  box-shadow: 0 10px 28px rgba(20, 43, 74, 0.07);
+}
+
+.event-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(8rem, 0.8fr) auto;
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.15rem 1.35rem;
+}
+
+.event-card h2,
+.event-detail-card h2 {
+  margin: 0;
+  color: var(--brand-navy);
+  font-size: 1.3rem;
+  font-weight: 700;
+}
+
+.event-location {
+  margin: 0.25rem 0 0;
+  color: var(--brand-muted);
+  font-style: italic;
+}
+
+.event-datetime {
+  display: grid;
+  gap: 0.15rem;
+  color: var(--brand-navy);
+}
+
+.event-datetime span {
+  color: var(--brand-muted);
+  font-size: 0.9rem;
+}
+
+.event-detail-card {
+  max-width: 54rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.event-card-heading {
+  display: flex;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.event-description {
+  margin: 1.5rem 0;
+  padding: 1.25rem;
+  border: 1px solid #e2e8ef;
+  border-radius: 0.75rem;
+  color: #34465b;
+  white-space: pre-line;
+}
+
+.event-detail-actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.event-detail-actions form {
+  margin: 0;
+}
+
+.event-availability,
+.registration-status {
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.event-full {
+  color: #9b2c2c;
+}
+
+.empty-state {
+  max-width: 58rem;
+  margin: 0 auto;
+  padding: 2rem;
+  text-align: center;
+  color: var(--brand-muted);
+}
+
+.empty-state h2 {
+  color: var(--brand-navy);
+}
+
+.registration-card {
+  grid-template-columns: minmax(0, 1.4fr) minmax(8rem, 0.8fr) minmax(10rem, auto);
+}
+
+.registration-state {
+  display: grid;
+  justify-items: start;
+  gap: 0.5rem;
+}
+
+.admin-event-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-event-actions .btn-primary,
+.admin-event-form .btn-primary {
+  background: var(--brand-accent);
+  border-color: var(--brand-accent);
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.admin-event-actions .btn-primary:hover,
+.admin-event-form .btn-primary:hover {
+  background: #c3a02d;
+  border-color: #c3a02d;
+  color: var(--brand-navy);
+}
+
+.admin-event-list {
+  max-width: 68rem;
+}
+
+.admin-list-heading,
+.admin-form-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin: 1.75rem auto 1rem;
+  max-width: 68rem;
+}
+
+.admin-list-heading h2,
+.admin-form-heading h2 {
+  color: var(--brand-navy);
+  font-weight: 700;
+}
+
+.admin-event-card,
+.admin-form-panel {
+  border: 1px solid #e2e8ef;
+  border-radius: var(--brand-radius);
+  background: var(--brand-surface);
+  box-shadow: 0 10px 28px rgba(20, 43, 74, 0.07);
+}
+
+.admin-event-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(9rem, 0.55fr) minmax(10rem, 0.65fr);
+  align-items: center;
+  gap: 1.25rem;
+  padding: 1.25rem 1.4rem;
+}
+
+.admin-event-title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.admin-event-title-row h3 {
+  margin: 0;
+  color: var(--brand-navy);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+.admin-event-description {
+  margin: 0.75rem 0 0;
+  color: #34465b;
+  white-space: pre-line;
+}
+
+.event-status-badge {
+  display: inline-block;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: #e9eef4;
+  color: var(--brand-navy);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+.status-open {
+  background: #e4f3e9;
+  color: #1f6338;
+}
+
+.status-closed {
+  background: #fff4d6;
+  color: #785800;
+}
+
+.status-cancelled {
+  background: #fae4e4;
+  color: #8a2727;
+}
+
+.admin-event-controls {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.admin-event-controls form {
+  display: grid;
+  gap: 0.5rem;
+}
+
+.admin-form-panel {
+  max-width: 50rem;
+  margin: 0 auto 2rem;
+  padding: clamp(1.25rem, 4vw, 2rem);
+}
+
+.admin-form-heading {
+  margin: 0 0 1.5rem;
+}
+
+.admin-event-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.admin-event-form .form-label {
+  color: var(--brand-navy);
+  font-weight: 600;
+}
+
+.admin-event-form-pair {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+.admin-form-submit {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.5rem;
+}
+
+@media (max-width: 600px) {
+  .app-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .app-nav-links {
+    gap: 0.85rem;
+  }
+
+  .profile-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .profile-fields .profile-wide {
+    grid-column: auto;
+  }
+
+  .workflow-heading {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .event-search {
+    width: 100%;
+  }
+
+  .event-card {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .admin-event-actions,
+  .admin-event-actions .event-search {
+    width: 100%;
+  }
+
+  .admin-event-actions > .btn {
+    width: 100%;
+  }
+
+  .admin-event-card,
+  .admin-event-form-pair {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-event-controls {
+    grid-template-columns: 1fr auto;
+    align-items: end;
+  }
+
+  .event-datetime {
+    grid-column: 1;
+  }
+
+  .event-card > .btn,
+  .registration-state {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+  }
+
+  .event-card-heading,
+  .event-detail-actions {
+    align-items: flex-start;
+    flex-direction: column;
+  }
 }

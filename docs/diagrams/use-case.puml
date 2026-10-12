@@ -1,0 +1,32 @@
+@startuml
+!pragma layout smetana
+skinparam shadowing false
+skinparam actorBorderColor #1B365D
+skinparam actorFontColor #1E232D
+skinparam usecaseBackgroundColor #FFFFFF
+skinparam usecaseBorderColor #1B365D
+skinparam usecaseFontColor #1E232D
+skinparam rectangleBorderColor #1B365D
+skinparam rectangleBackgroundColor #F8FAFC
+skinparam arrowColor #1B365D
+
+actor "Alumnus" as Alumnus
+
+rectangle "Alumni App" {
+  usecase "Manage Alumni Profile" as Manage_Alumni_Profile
+  usecase "Explore Alumni Events" as Explore_Alumni_Events
+  usecase "View Event Details" as View_Event_Details
+  usecase "Register for Event" as Register_for_Event
+  usecase "Manage Alumni Events" as Manage_Alumni_Events
+}
+
+actor "Administrator" as Administrator
+
+Alumnus --> Manage_Alumni_Profile
+Alumnus --> Explore_Alumni_Events
+Explore_Alumni_Events ..> View_Event_Details : <<include>>
+Alumnus --> Register_for_Event
+Register_for_Event ..> Explore_Alumni_Events : <<extend>>
+Manage_Alumni_Events <-- Administrator
+
+@enduml

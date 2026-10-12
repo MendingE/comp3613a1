@@ -1,0 +1,78 @@
+{% extends "authenticated-base.html" %}
+{% block title %}Events · Alumni Connect{% endblock %}
+
+{% block subpage_content %}
+<section class="workflow-heading">
+  <div>
+    <p class="landing-kicker mb-2">Stay connected</p>
+    <h1 class="h2 mb-0">Alumni Events</h1>
+  </div>
+  <form class="event-search" method="get" action="{{ url_for('events_list_view') }}">
+    <label class="visually-hidden" for="event-search">Search events</label>
+    <input class="form-control" id="event-search" name="query" value="{{ query }}" placeholder="Search events">
+    <button class="btn btn-outline-secondary" type="submit">Search</button>
+  </form>
+</section>
+
+{% if request.query_params.get('error') == 'already_registered' %}
+<div class="alert alert-info" role="status">You are already registered for this event.</div>
+{% elif request.query_params.get('error') == 'event_unavailable' %}
+<div class="alert alert-warning" role="status">This event is full or no longer open for registration.</div>
+{% endif %}
+
+{% if selected_event %}
+<article class="event-detail-card">
+  <div class="event-card-heading">
+    <div>
+      <h2>{{ selected_event.event.title }}</h2>
+      <p class="event-location">{{ selected_event.event.location }}</p>
+    </div>
+    <div class="event-datetime">
+      <strong>{{ selected_event.event.event_date.strftime("%d/%m/%Y") }}</strong>
+      <span>{{ selected_event.event.event_time.strftime("%I:%M %p") }}</span>
+    </div>
+  </div>
+  <p class="event-description">{{ selected_event.event.description }}</p>
+  <div class="event-detail-actions">
+    {% if selected_event.is_full %}
+    <span class="event-availability event-full">Full</span>
+    {% else %}
+    <span class="event-availability">Spaces Available: {{ selected_event.spaces_available }}</span>
+    {% endif %}
+    {% if selected_event.already_registered %}
+    <a class="btn btn-outline-secondary" href="{{ url_for('registrations_view') }}">View Registrations</a>
+    {% elif selected_event.can_register %}
+    <form method="post" action="{{ url_for('event_registration_action', event_id=selected_event.event.event_id) }}">
+      <button class="btn btn-primary" type="submit">Register for Event</button>
+    </form>
+    {% elif not selected_event.has_profile and not selected_event.is_full %}
+    <a class="btn btn-primary" href="{{ url_for('alumni_profile_view') }}">Complete Profile to Register</a>
+    {% endif %}
+    <a class="btn btn-outline-secondary" href="{{ request.url_for('events_list_view').include_query_params(query=query) }}">Back to Events</a>
+  </div>
+</article>
+{% else %}
+  {% if events %}
+  <div class="event-list">
+    {% for card in events %}
+    <article class="event-card">
+      <div>
+        <h2>{{ card.event.title }}</h2>
+        <p class="event-location">{{ card.event.location }}</p>
+      </div>
+      <div class="event-datetime">
+        <strong>{{ card.event.event_date.strftime("%d/%m/%Y") }}</strong>
+        <span>{{ card.event.event_time.strftime("%I:%M %p") }}</span>
+      </div>
+      <a class="btn btn-outline-secondary" href="{{ request.url_for('events_list_view').include_query_params(query=query, event_id=card.event.event_id) }}">More Info</a>
+    </article>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div class="empty-state">
+    <h2 class="h5">No events found</h2>
+    <p class="mb-0">{% if query %}Try another search.{% else %}Check back soon for upcoming alumni events.{% endif %}</p>
+  </div>
+  {% endif %}
+{% endif %}
+{% endblock %}
