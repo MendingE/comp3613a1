@@ -48,16 +48,19 @@ def cmd_init(args: argparse.Namespace) -> None:
 
 
 def cmd_seed(args: argparse.Namespace) -> None:
-    """Insert demo users and a sample event.
+    """Insert demo users, alumni profiles, events, and registrations.
 
     bob / bobpass       (regular_user)
+    maya / mayapass     (regular_user)
+    andre / andrepass   (regular_user)
     admin / adminpass   (admin)
     """
     from app.database import ensure_db_and_tables, get_cli_session
     from app.repositories.user import UserRepository
     from app.schemas.user import AdminCreate, RegularUserCreate
     from app.utilities.security import encrypt_password
-    from app.models.event import Administrator, Event
+    from app.models.alumnus import Alumnus
+    from app.models.event import Administrator, Event, EventRegistration
     from sqlmodel import select
 
     _ensure_models_loaded()
@@ -65,17 +68,24 @@ def cmd_seed(args: argparse.Namespace) -> None:
 
     demo_users = [
         ("bob", "bob@example.com", "bobpass", "regular_user"),
+        ("maya", "maya@example.com", "mayapass", "regular_user"),
+        ("andre", "andre@example.com", "andrepass", "regular_user"),
         ("admin", "admin@example.com", "adminpass", "admin"),
     ]
 
-    created = 0
-    skipped = 0
+    counts = {
+        "users_created": 0,
+        "users_skipped": 0,
+        "profiles_created": 0,
+        "events_created": 0,
+        "registrations_created": 0,
+    }
     with get_cli_session() as session:
         repo = UserRepository(session)
         for username, email, password, role in demo_users:
             if repo.get_by_username(username):
                 print(f"  skip  {username} (already exists)")
-                skipped += 1
+                counts["users_skipped"] += 1
                 continue
             payload_cls = AdminCreate if role == "admin" else RegularUserCreate
             repo.create(
@@ -87,7 +97,7 @@ def cmd_seed(args: argparse.Namespace) -> None:
                 )
             )
             print(f"  create {username} ({role})")
-            created += 1
+            counts["users_created"] += 1
 
         admin_user = repo.get_by_username("admin")
         if admin_user:
@@ -106,30 +116,166 @@ def cmd_seed(args: argparse.Namespace) -> None:
             if administrator.admin_id is None:
                 raise RuntimeError("Seeded administrator record has no primary key.")
 
-            sample_event = session.exec(
-                select(Event).where(Event.title == "Alumni Networking Mixer")
-            ).first()
-            if sample_event is None:
-                session.add(
-                    Event(
+            profiles = {
+                "bob": {
+                    "first_name": "Bob",
+                    "last_name": "Smith",
+                    "email": "bob@example.com",
+                    "graduation_year": 2018,
+                    "degree": "BSc Computer Science",
+                    "current_occupation": "Software Developer",
+                    "company": "Caribbean Tech",
+                    "bio": "Enjoys connecting with fellow graduates and mentoring students.",
+                },
+                "maya": {
+                    "first_name": "Maya",
+                    "last_name": "Brown",
+                    "email": "maya@example.com",
+                    "graduation_year": 2020,
+                    "degree": "BSc Economics",
+                    "current_occupation": "Financial Analyst",
+                    "company": "Island Capital",
+                    "bio": "Interested in professional networking and career development.",
+                },
+                "andre": {
+                    "first_name": "Andre",
+                    "last_name": "James",
+                    "email": "andre@example.com",
+                    "graduation_year": 2015,
+                    "degree": "MSc Management",
+                    "current_occupation": "Project Manager",
+                    "company": "Blue Mountain Group",
+                    "bio": "Supports alumni mentorship and community events.",
+                },
+            }
+            seeded_users = {}
+            for username, fields in profiles.items():
+                user = repo.get_by_username(username)
+                if user is None or user.role != "regular_user":
+                    print(f"  skip profile for {username} (regular account unavailable)")
+                    continue
+                if user.id is None:
+                    raise RuntimeError(f"Seeded user {username} has no primary key.")
+                seeded_users[username] = user
+                profile = session.exec(
+                    select(Alumnus).where(Alumnus.user_id == user.id)
+                ).one_or_none()
+                if profile is None:
+                    session.add(Alumnus(user_id=user.id, **fields))
+                    session.commit()
+                    counts["profiles_created"] += 1
+                    print(f"  create alumni profile ({username})")
+
+            sample_events = [
+                (
+                    "Alumni Networking Mixer",
+                    "Reconnect with fellow graduates and meet alumni from across the community.",
+                    30,
+                    17,
+                    30,
+                    "Alumni Hall",
+                    "Open",
+                ),
+                (
+                    "Alumni Career Connections",
+                    "Share career advice and build new professional connections.",
+                    45,
+                    18,
+                    25,
+                    "Faculty Conference Centre",
+                    "Open",
+                ),
+                (
+                    "Mentorship Roundtable",
+                    "A small-group discussion connecting graduates with emerging professionals.",
+                    60,
+                    10,
+                    20,
+                    "Online",
+                    "Closed",
+                ),
+                (
+                    "Homecoming Alumni Dinner",
+                    "An evening gathering for alumni to reconnect and celebrate.",
+                    75,
+                    19,
+                    40,
+                    "Campus Dining Hall",
+                    "Cancelled",
+                )
+            ]
+            seeded_events = {}
+            for title, description, days, hour, capacity, location, status in sample_events:
+                event = session.exec(
+                    select(Event).where(Event.title == title)
+                ).one_or_none()
+                if event is None:
+                    event = Event(
                         admin_id=administrator.admin_id,
-                        title="Alumni Networking Mixer",
-                        description=(
-                            "Reconnect with fellow graduates and meet alumni "
-                            "from across the community."
-                        ),
-                        event_date=date.today() + timedelta(days=30),
-                        event_time=time(hour=17, minute=30),
-                        location="Alumni Hall",
-                        capacity=30,
-                        status="Open",
+                        title=title,
+                        description=description,
+                        event_date=date.today() + timedelta(days=days),
+                        event_time=time(hour=hour, minute=0),
+                        location=location,
+                        capacity=capacity,
+                        status=status,
+                    )
+                    session.add(event)
+                    session.commit()
+                    session.refresh(event)
+                    counts["events_created"] += 1
+                    print(f"  create sample event ({title})")
+                if event.event_id is None:
+                    raise RuntimeError(f"Seeded event {title} has no primary key.")
+                seeded_events[title] = event
+
+            registrations = [
+                ("bob", "Alumni Networking Mixer"),
+                ("maya", "Alumni Career Connections"),
+                ("andre", "Mentorship Roundtable"),
+                ("maya", "Homecoming Alumni Dinner"),
+            ]
+            for username, title in registrations:
+                user = seeded_users.get(username)
+                event = seeded_events.get(title)
+                if user is None or event is None:
+                    continue
+                alumnus = session.exec(
+                    select(Alumnus).where(Alumnus.user_id == user.id)
+                ).one_or_none()
+                if alumnus is None or alumnus.alumni_id is None:
+                    continue
+                existing_registration = session.exec(
+                    select(EventRegistration).where(
+                        EventRegistration.alumnus_id == alumnus.alumni_id,
+                        EventRegistration.event_id == event.event_id,
+                    )
+                ).first()
+                if existing_registration is not None:
+                    continue
+                registration_status = (
+                    "Cancelled" if event.status == "Cancelled" else "Pending"
+                )
+                session.add(
+                    EventRegistration(
+                        alumnus_id=alumnus.alumni_id,
+                        event_id=event.event_id,
+                        status=registration_status,
                     )
                 )
                 session.commit()
-                print("  create sample event (Alumni Networking Mixer)")
+                counts["registrations_created"] += 1
+                print(f"  create registration ({username} → {title})")
 
-    print(f"Seed done — created {created}, skipped {skipped}.")
-    print("Login with bob/bobpass or admin/adminpass")
+    print(
+        "Seed done — "
+        f"{counts['users_created']} users, "
+        f"{counts['profiles_created']} profiles, "
+        f"{counts['events_created']} events, "
+        f"{counts['registrations_created']} registrations created; "
+        f"{counts['users_skipped']} existing users preserved."
+    )
+    print("Demo logins: bob/bobpass, maya/mayapass, andre/andrepass, admin/adminpass")
 
 
 def cmd_run(args: argparse.Namespace) -> None:

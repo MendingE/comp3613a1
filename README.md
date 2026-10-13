@@ -82,9 +82,9 @@ cp .env.example .env
 
 Defaults use a local SQLite file (`database.db`). Change `SECRET_KEY` before any real deployment. Set `CONFIG_PASSWORD` to enable the ops console at `/config` (leave empty to keep it disabled). If `.env` is missing, the app falls back to `.env.example` automatically.
 
-### 4. Initialise the database (Python CLI)
+### 4. Initialise or seed the database (Python CLI)
 
-Creates tables (drops existing by default) **and seeds demo users plus a sample alumni event**:
+Creates tables (drops existing by default) and seeds demo accounts, alumni profiles, events, and registrations:
 
 ```bash
 python manage.py init
@@ -93,6 +93,8 @@ python manage.py init
 | Username | Password    | Role         |
 |----------|-------------|--------------|
 | `bob`    | `bobpass`   | regular_user |
+| `maya`   | `mayapass`  | regular_user |
+| `andre`  | `andrepass` | regular_user |
 | `admin`  | `adminpass` | admin        |
 
 Flags:
@@ -102,7 +104,7 @@ python manage.py init --no-drop   # create/seed without dropping
 python manage.py init --no-seed   # tables only (skip demo users)
 ```
 
-Seeding skips usernames that already exist and adds the sample event only if it is missing. Add more rows in `cmd_seed` in `app/cli.py`. Run `python manage.py seed` to insert demo users and the sample event without dropping existing data.
+Seeding skips usernames and profile/event/registration records that already exist; it does not overwrite existing account credentials, profiles, events, or registrations. The sample event set includes Open, Closed, and Cancelled statuses. Run `python manage.py seed` to add missing demo records without dropping existing data. Demo credentials are for development/coursework only; replace or remove these accounts before making a public deployment.
 
 ```bash
 python manage.py users

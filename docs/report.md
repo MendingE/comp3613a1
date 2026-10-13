@@ -189,7 +189,7 @@ Profile editing has been implemented against the profile wireframe: the authenti
 
 The alumnus event workflow follows the submitted wireframes: browse/search open events, view details, see remaining capacity, register once, and view registration status. Full events show “Full” and do not show the registration action, per the student's choice. Capacity and duplicate-registration checks are coordinated in the service; persistence is in the repository. The database prevents duplicate active registrations per alumnus/event while allowing a new registration after the previous one is cancelled.
 
-A sample future “Alumni Networking Mixer” event is added by the existing seed command so this workflow can be exercised before the administrator event-management workflow is implemented. The event is owned by a seeded administrator record. Admin event management remains the next workflow after this one is verified.
+The seed command supplies a small showcase dataset: three alumni profiles, an administrator-owned sample set of Open, Closed, and Cancelled events, and linked registrations. Existing seed accounts and records are preserved on later runs.
 
 **Implementation:** Added the event and registration SQLModel entities, repository operations, service-level capacity and duplicate checks, and thin routes for event browsing, details, registration, and My Registrations. The templates show event details, remaining capacity, a full-event state, registration confirmation, and registration status. The sample event can be added with `python manage.py seed` without dropping existing data. The existing SQLite database had an empty legacy `eventregistration` table with only `registration_id`; initialization now transactionally rebuilds only that exact empty legacy table to match the model, and refuses unexpected or populated table shapes. Cancelled registrations are excluded from active duplicate checks and capacity counts. The unique partial index was exercised in a rolled-back database transaction: a duplicate active registration was rejected, and a new active registration after cancellation was accepted.
 
@@ -275,6 +275,12 @@ passed: yes
 note: Student's status handler delegates the update to AdminEventsService; the Guide aligned the identity argument to the actual User-to-Administrator email mapping.
 -->
 
+## Demo seed data
+
+The non-destructive `python manage.py seed` command now supplies three alumni accounts/profiles (`bob`, `maya`, and `andre`), an administrator account, four administrator-owned events across Open, Closed, and Cancelled statuses, and four linked registration examples. Existing accounts, passwords, profiles, events, and registrations are not overwritten; the command adds only missing matching records. A registration for a Cancelled event is seeded as Cancelled, while the Closed event demonstrates that its registration may remain Pending.
+
+**Automated verification:** Ran the seed command twice against isolated in-memory SQLite. The first run created 4 users, 3 profiles, 4 events, and 4 registrations; the second run left those counts unchanged. The check confirmed Bob’s existing password hash authenticates, Open/Closed/Cancelled event and registration examples have the expected statuses, and a custom profile value and event capacity remain unchanged after a rerun. No records were added to or changed in the configured local database by this check. `app/cli.py` has no Pylance problems, and `git diff --check` passed. No manual UI test of the additional seed accounts/data has been performed.
+
 ## Deployed app
 
 Phase 6. Public Render URL (not localhost). Markers open this to mark the three workflows.
@@ -286,7 +292,11 @@ https://
 Every account a marker needs, including extra users you added. Starter accounts:
 
 - bob / bobpass — regular user
+- maya / mayapass — regular user
+- andre / andrepass — regular user
 - admin / adminpass — admin
+
+These are development/coursework demo credentials and must be changed or removed before public deployment.
 
 ## YouTube URL
 
