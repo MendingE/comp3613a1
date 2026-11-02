@@ -123,6 +123,22 @@ python manage.py run --host 127.0.0.1 --port 5000
 python manage.py run --no-reload
 ```
 
+## Automated tests
+
+Run tests from the project root with the virtual environment active:
+
+```bash
+python -m pytest
+```
+
+The test fixtures in `tests/conftest.py` set `DATABASE_URI` before importing
+the application, using `.test-data/assignment2-tests.sqlite3`. They reject an
+engine that does not resolve to that exact SQLite file. The test client uses
+the application lifespan and overrides request sessions with sessions from
+that same test engine. The test schema is reset around each test. The
+`.test-data/` directory is ignored by Git; development and deployed database
+settings are unchanged.
+
 ---
 
 ## CLI reference
